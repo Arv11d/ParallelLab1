@@ -7,24 +7,22 @@ using System.Threading.Tasks;
 
 namespace Mandelbrot
 {
-    public class MandelbrotSingleThread : MandelbrotBase
+    public class MandelbrotParallel : MandelbrotBase
     {
         public override string Name { 
-            get { return "MandelbrotSingleThread"; }
+            get { return "MandelbrotParallel"; }
         }
 
-        public MandelbrotSingleThread(int pixelsX, int pixelsY) : base(pixelsX, pixelsY)
+        public MandelbrotParallel(int pixelsX, int pixelsY) : base(pixelsX, pixelsY)
         {
         }
-
         public override void Compute()
+        { }
+        public override void ParallelCompute()
         {
-            Compute(new Tuple<double, double>(LowerX, UpperX),
+            ParallelCompute(new Tuple<double, double>(LowerX, UpperX),
                     new Tuple<double, double>(LowerY, UpperY),
                     Image);
         }
-
-        public override void ParallelCompute()
-        { }
     }
 }
