@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Mandelbrot;
+using Sorting;
 
 namespace ShowResults
 {
@@ -8,9 +9,9 @@ namespace ShowResults
     {
         public static void Main()
         {
-            Test(9000, 10000, 500);
+            ShowTopNSort();
         }
-        public static void Show()
+        public static void ShowMalbrot()
         {
             int x = 500;
             int y = 500;
@@ -55,7 +56,7 @@ namespace ShowResults
                 Console.WriteLine($"  CPU time: {process.TotalProcessorTime.TotalMilliseconds} ms");
                 Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
             }
-        public static void Test(double minX, double maxX, double stepX, int repeats = 10)
+        public static void TestMalbrot(double minX, double maxX, double stepX, int repeats = 10)
         {
             for (double x = minX; x <= maxX; x += stepX)
             {
@@ -124,5 +125,45 @@ namespace ShowResults
             }
         }
 
+        public static void ShowTopNSort(int arraySize = 2000000000, int topN = 10_000)
+        {
+            var process = Process.GetCurrentProcess();
+
+            var rand = new Random();
+
+            // Generate random array
+            var inputArray = Enumerable.Range(0, arraySize)
+                                       .Select(_ => rand.Next())
+                                       .ToArray();
+
+            // Single-threaded sort
+            var topNSort = new TopNStandardSort<int>();
+            var sw = Stopwatch.StartNew();
+            var singleResult = topNSort.TopNSort((int[])inputArray.Clone(), topN);
+            sw.Stop();
+            process.Refresh(); 
+
+            Console.WriteLine("Single-threaded:");
+            Console.WriteLine($"  Time elapsed: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  CPU time: {process.TotalProcessorTime.TotalMilliseconds} ms");
+            Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
+
+            // Parallel sort
+            var topNParallelSort = new TopNParallelSort<int>();
+            sw.Restart();
+            process.Refresh(); 
+            var parallelResult = topNParallelSort.TopNSort((int[])inputArray.Clone(), topN);
+            sw.Stop();
+            process.Refresh(); 
+
+            Console.WriteLine("Parallel:");
+            Console.WriteLine($"  Time elapsed: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  CPU time: {process.TotalProcessorTime.TotalMilliseconds} ms");
+            Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
+
+            // Verify results match
+            bool equal = singleResult.SequenceEqual(parallelResult);
+            Console.WriteLine($"Results match:   {equal}");
+        }
     }
 }
