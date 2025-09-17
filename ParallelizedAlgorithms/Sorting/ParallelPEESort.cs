@@ -27,7 +27,6 @@ namespace Sorting
         {
             if (length <= 1) return;
 
-            // Threshold: when to stop parallelizing and just sort sequentially
             int threshold = 16_384;
             int mid = start + (length / 2);
             int leftLen = mid - start;
@@ -38,14 +37,11 @@ namespace Sorting
                 Array.Sort(src, start, length, comparer);
                 return;
             }
-
-            // Sort left and right halves in parallel
             Parallel.Invoke(
                 () => ParallelMergeSort(src, buf, start, leftLen, comparer, depth + 1),
                 () => ParallelMergeSort(src, buf, mid, rightLen, comparer, depth + 1)
             );
 
-            // Merge
             Merge(src, buf, start, mid, start + length, comparer);
             Array.Copy(buf, start, src, start, length);
         }
