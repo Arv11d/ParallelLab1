@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Mandelbrot;
 using Sorting;
+using System.Linq;
 
 namespace ShowResults
 {
@@ -10,8 +11,7 @@ namespace ShowResults
         public static void Main()
         {
             //ShowTopNSort();
-            //ShowSorting();
-            RunSortingSizes();
+            ShowSortingSizes(10_00, 500_000, 1_000_000, 2_000_000);
         }
         public static void ShowMalbrot()
         {
@@ -168,95 +168,117 @@ namespace ShowResults
             Console.WriteLine($"Results match:   {equal}");
         }
 
-        public static void ShowSorting(int n = 2_000_000) // ~2M elements
+        public static void ShowSorting(int arraySize = 2_000_000)
         {
-            var rand = new Random(42);
-            var data = new int[n];
-            for (int i = 0; i < n; i++) data[i] = rand.Next();
-
             var process = Process.GetCurrentProcess();
-            var sw = new Stopwatch();
+            var rand = new Random();
 
-            // --- Sequential (baseline) ---
-            var seq = (int[])data.Clone();
-            var seqSorter = new StandardSort<int>();   // or SelectionSort<int>()
+            // Generate random input
+            var inputArray = Enumerable.Range(0, arraySize)
+                                       .Select(_ => rand.Next())
+                                       .ToArray();
+
+            // --- Single-threaded (sequential baseline) ---
+            var singleArray = (int[])inputArray.Clone();
+            var seqSorter = new MergeSort<int>(); // or new StandardSort<int>();
+            var sw = new Stopwatch();
 
             process.Refresh();
             var cpuBefore = process.TotalProcessorTime;
             sw.Restart();
-            seqSorter.Sort(seq, Comparer<int>.Default);
+            seqSorter.Sort(singleArray, Comparer<int>.Default);
             sw.Stop();
             process.Refresh();
-            var seqCpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
             var seqWallMs = sw.ElapsedMilliseconds;
+            var seqCpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
 
-            // --- Parallel ---
-            var par = (int[])data.Clone();
-            var parSorter = new ParallelPEESort<int>();
+            Console.WriteLine("Single-threaded:");
+            Console.WriteLine($"  Time elapsed: {seqWallMs} ms");
+            Console.WriteLine($"  CPU time: {seqCpuMs:F2} ms");
+            Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
+
+            // --- Parallel (your class) ---
+            var parallelArray = (int[])inputArray.Clone();
+            var parSorter = new ParallelSort<int>(); // <-- your parallel sorter
 
             process.Refresh();
             cpuBefore = process.TotalProcessorTime;
             sw.Restart();
-            parSorter.Sort(par, Comparer<int>.Default);
+            parSorter.Sort(parallelArray, Comparer<int>.Default);
             sw.Stop();
             process.Refresh();
-            var parCpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
             var parWallMs = sw.ElapsedMilliseconds;
+            var parCpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
 
-            // --- Verify + report ---
-            bool same = seq.SequenceEqual(par);
-            Console.WriteLine($"Sorted correctly: {same}");
-            Console.WriteLine($"Sequential  - Wall: {seqWallMs} ms  | CPU: {seqCpuMs:F0} ms");
-            Console.WriteLine($"Parallel    - Wall: {parWallMs} ms  | CPU: {parCpuMs:F0} ms");
-            Console.WriteLine($"Speedup (wall): {(double)seqWallMs / parWallMs:F2}×");
+            Console.WriteLine("Parallel:");
+            Console.WriteLine($"  Time elapsed: {parWallMs} ms");
+            Console.WriteLine($"  CPU time: {parCpuMs:F2} ms");
+            Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
+
+            // Verify identical results
+            bool equal = singleArray.SequenceEqual(parallelArray);
+            Console.WriteLine($"Results match:   {equal}");
         }
 
-        public static void RunSortingSizes(int trials = 5)
+        public static void ShowSortingVsStandard(int arraySize = 2_000_000)
         {
-            foreach (var n in new[] { 100_000, 500_000, 1_000_000, 2_000_000 })
+            var process = Process.GetCurrentProcess();
+            var rand = new Random();
+
+            // Generate random input
+            var inputArray = Enumerable.Range(0, arraySize)
+                                       .Select(_ => rand.Next())
+                                       .ToArray();
+
+            // --- Single-threaded (StandardSort baseline) ---
+            var singleArray = (int[])inputArray.Clone();
+            var seqSorter = new StandardSort<int>(); // <-- baseline changed here
+            var sw = new Stopwatch();
+
+            process.Refresh();
+            var cpuBefore = process.TotalProcessorTime;
+            sw.Restart();
+            seqSorter.Sort(singleArray, Comparer<int>.Default);
+            sw.Stop();
+            process.Refresh();
+            var seqWallMs = sw.ElapsedMilliseconds;
+            var seqCpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
+
+            Console.WriteLine("Single-threaded (StandardSort):");
+            Console.WriteLine($"  Time elapsed: {seqWallMs} ms");
+            Console.WriteLine($"  CPU time: {seqCpuMs:F2} ms");
+            Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
+
+            // --- Parallel (your class) ---
+            var parallelArray = (int[])inputArray.Clone();
+            var parSorter = new ParallelSort<int>(); // <-- your parallel sorter
+
+            process.Refresh();
+            cpuBefore = process.TotalProcessorTime;
+            sw.Restart();
+            parSorter.Sort(parallelArray, Comparer<int>.Default);
+            sw.Stop();
+            process.Refresh();
+            var parWallMs = sw.ElapsedMilliseconds;
+            var parCpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
+
+            Console.WriteLine("Parallel:");
+            Console.WriteLine($"  Time elapsed: {parWallMs} ms");
+            Console.WriteLine($"  CPU time: {parCpuMs:F2} ms");
+            Console.WriteLine($"  Memory usage: {process.WorkingSet64 / 1024 / 1024} MB");
+
+            // Verify identical results
+            bool equal = singleArray.SequenceEqual(parallelArray);
+            Console.WriteLine($"Results match:   {equal}");
+        }
+
+
+        public static void ShowSortingSizes(params int[] sizes)
+        {
+            foreach (var n in sizes)
             {
-                long seqWall = 0, parWall = 0;
-                double seqCpu = 0, parCpu = 0;
-                bool ok = true;
-
-                // One base input reused each trial for fairness
-                var rnd = new Random(42);
-                var baseData = Enumerable.Range(0, n).Select(_ => rnd.Next()).ToArray();
-                var golden = (int[])baseData.Clone();
-                Array.Sort(golden);
-
-                for (int t = 0; t < trials; t++)
-                {
-                    var process = Process.GetCurrentProcess();
-                    var sw = new Stopwatch();
-
-                    // Sequential
-                    var seq = (int[])baseData.Clone();
-                    process.Refresh();
-                    var cpuBefore = process.TotalProcessorTime;
-                    sw.Restart(); new StandardSort<int>().Sort(seq, Comparer<int>.Default); sw.Stop();
-                    process.Refresh();
-                    seqWall += sw.ElapsedMilliseconds;
-                    seqCpu += (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
-                    ok &= seq.SequenceEqual(golden);
-
-                    // Parallel
-                    var par = (int[])baseData.Clone();
-                    process.Refresh();
-                    cpuBefore = process.TotalProcessorTime;
-                    sw.Restart(); new ParallelPEESort<int>().Sort(par, Comparer<int>.Default); sw.Stop();
-                    process.Refresh();
-                    parWall += sw.ElapsedMilliseconds;
-                    parCpu += (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
-                    ok &= par.SequenceEqual(golden);
-                }
-
-                double seqW = seqWall / (double)trials, parW = parWall / (double)trials;
-                double seqC = seqCpu / (double)trials, parC = parCpu / (double)trials;
-
-                Console.WriteLine(
-                    $"N={n:N0} | ok={ok} | Seq: {seqW:F1} ms (CPU {seqC:F0}) | " +
-                    $"Par: {parW:F1} ms (CPU {parC:F0}) | Speedup {seqW / parW:F2}×");
+                Console.WriteLine($"\n=== Array size: {n:N0} ===");
+                ShowSortingVsStandard(n);   // uses your existing method & output style
             }
         }
 
