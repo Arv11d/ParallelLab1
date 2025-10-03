@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 
 namespace Sorting
 {
-    // Range-based Parallel Merge Sort with a single reusable buffer.
-    // Avoids allocating left/right arrays at each recursion.
     public sealed class ParallelSort<T> : SortBase<T>
     {
         private readonly int _threshold;
@@ -13,7 +11,7 @@ namespace Sorting
 
         public ParallelSort(int? threshold = null, int? maxDepth = null)
         {
-            _threshold = threshold ?? 32_768; // tune: 16k–128k
+            _threshold = threshold ?? 32_768; 
             _maxDepth = maxDepth ?? (int)Math.Log2(Math.Max(1, Environment.ProcessorCount));
         }
 
