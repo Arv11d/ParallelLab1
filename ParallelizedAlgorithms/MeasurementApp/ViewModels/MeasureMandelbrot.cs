@@ -148,8 +148,8 @@ namespace MeasurementApp.ViewModels
 
 
         private readonly MandelbrotBase[] availableMandelbrotAlgorithms = {
-                new MandelbrotSingleThread(2048, 2048),
-                new MandelbrotParallel(2048, 2048)
+                new MandelbrotSingleThread(4096, 4096),
+                new MandelbrotParallel(4096, 4096)
 
                 // Add more here!
             };
