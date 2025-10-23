@@ -21,12 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeasurementApp", "Measureme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mandelbrot", "Mandelbrot\Mandelbrot.csproj", "{A873CE28-9518-433D-8598-6752A15EC84B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowResults", "ShowResults\ShowResults.csproj", "{A578605F-1258-481A-8C10-02C36FBB6140}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6BC5B554-EE0B-4C10-8648-B1A8D13C0FB0} = {6BC5B554-EE0B-4C10-8648-B1A8D13C0FB0}
-		{A873CE28-9518-433D-8598-6752A15EC84B} = {A873CE28-9518-433D-8598-6752A15EC84B}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,10 +63,6 @@ Global
 		{A873CE28-9518-433D-8598-6752A15EC84B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A873CE28-9518-433D-8598-6752A15EC84B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A873CE28-9518-433D-8598-6752A15EC84B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A578605F-1258-481A-8C10-02C36FBB6140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A578605F-1258-481A-8C10-02C36FBB6140}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A578605F-1258-481A-8C10-02C36FBB6140}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A578605F-1258-481A-8C10-02C36FBB6140}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

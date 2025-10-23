@@ -32,5 +32,10 @@ namespace MeasurementApp.Views
             tabEditDistance.DataContext = new ViewModels.MeasureEditDistance();
             tabScanAndFold.DataContext = new ViewModels.MeasureScanAndFold();
         }
+
+        private void MeasureComputePi_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

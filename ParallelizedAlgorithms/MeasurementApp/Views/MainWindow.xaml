@@ -8,7 +8,7 @@
         Title="Measurement App" Height="530" Width="1000.0">
     <TabControl>
         <TabItem Name="tabComputePi" Header="Measure compute Pi">
-            <local:MeasureComputePi Margin="10"/>
+            <local:MeasureComputePi Margin="10" Loaded="MeasureComputePi_Loaded"/>
         </TabItem>
         <TabItem Name="tabSorting" Header="Measure sorting">
             <local:MeasureSorting Margin="10"/>

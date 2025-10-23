@@ -23,8 +23,5 @@ namespace Mandelbrot
                     new Tuple<double, double>(LowerY, UpperY),
                     Image);
         }
-
-        public override void ParallelCompute()
-        { }
     }
 }
